@@ -1,0 +1,3009 @@
+{
+  "name": "DETAIL - Anima",
+  "author": "Pfannkuchensack",
+  "description": "Callable detailer sub workflow (Anima). Finds a named part of the image and re-renders it at higher effective resolution.",
+  "version": "1.0.0",
+  "contact": "",
+  "tags": "callable, sub workflow, detail, hyperdetailer, Anima",
+  "notes": "Pfannkuchensacks Workflow Package\n\nCallable \"detail one part of the image\" sub workflow (Anima).\n\nGrounding DINO finds the thing named in \"Detect\", Segment Anything turns that\ninto a mask, the masked region is cropped out, scaled up to a workable\nresolution, re-denoised with the mask, scaled back and pasted into the original.\n\n\"Detect\" is just a text prompt - Face, hands, eyes, hair, ... - so one workflow\ncovers every body part. Chain several calls to detail more than one thing.\n\nReturns image + latents + metadata, like every other sub workflow in this pack,\nand the image input uses the same node id, so a Call Saved Workflow node can be\nswitched between REFINE and DETAIL without losing its wiring.\n\nWorking resolution: the original used the \"ideal_size\" node, which hard-requires\na UNetField and raises for anything that is not SD1/SD2/SDXL. It is replaced by\nplain math that reproduces the same result for the 1024-class models in this\npack:\n\n    w = D * sqrt(cropW / cropH)      h = D / sqrt(cropW / cropH)      w * h = D^2\n\nBoth branches of ideal_size are algebraically identical; the branch only decides\nwhich side gets clamped to D/2, which is done here with two MAX nodes. Sides are\nfloored to a multiple of 16 (not 8 as ideal_size does): krea2_denoise and the\n2x2 patch packing of the Qwen-Image VAE require 16, and every multiple of 16 is\nalso a valid multiple of 8 for the SD-style bases.\n\nThis workflow needs no custom node packs. The SDXL original round-tripped the\nmodel through XYGrid's sdxl_model_to_string / string_to_sdxl_model purely to get\na connectable ModelIdentifierField; core's \"Any Model\" (model_identifier) does\nthe same in one node where the loader accepts a connection.",
+  "exposedFields": [
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "vae_model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "qwen3_encoder_model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000008",
+      "fieldName": "image"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000020",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000022",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000001",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000002",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000005",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000006",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000007",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000009",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000021",
+      "fieldName": "value"
+    }
+  ],
+  "meta": {
+    "category": "user",
+    "version": "3.0.0"
+  },
+  "form": {
+    "elements": {
+      "heading-0": {
+        "id": "heading-0",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Model"
+        }
+      },
+      "nf-2": {
+        "id": "nf-2",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "model"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-3": {
+        "id": "nf-3",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "vae_model"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-4": {
+        "id": "nf-4",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "qwen3_encoder_model"
+          },
+          "showDescription": false
+        }
+      },
+      "container-1": {
+        "id": "container-1",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-2",
+            "nf-3",
+            "nf-4"
+          ]
+        }
+      },
+      "heading-5": {
+        "id": "heading-5",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "What to improve"
+        }
+      },
+      "nf-7": {
+        "id": "nf-7",
+        "parentId": "container-6",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000008",
+            "fieldName": "image"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-8": {
+        "id": "nf-8",
+        "parentId": "container-6",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000020",
+            "fieldName": "value"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-9": {
+        "id": "nf-9",
+        "parentId": "container-6",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000022",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-6": {
+        "id": "container-6",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-7",
+            "nf-8",
+            "nf-9"
+          ]
+        }
+      },
+      "heading-10": {
+        "id": "heading-10",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Prompt"
+        }
+      },
+      "nf-12": {
+        "id": "nf-12",
+        "parentId": "container-11",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000001",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-11": {
+        "id": "container-11",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-12"
+          ]
+        }
+      },
+      "nf-14": {
+        "id": "nf-14",
+        "parentId": "container-13",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000002",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-13": {
+        "id": "container-13",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-14"
+          ]
+        }
+      },
+      "heading-15": {
+        "id": "heading-15",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Generation"
+        }
+      },
+      "nf-17": {
+        "id": "nf-17",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000005",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-18": {
+        "id": "nf-18",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000006",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-19": {
+        "id": "nf-19",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000007",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-20": {
+        "id": "nf-20",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000009",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-21": {
+        "id": "nf-21",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000021",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-16": {
+        "id": "container-16",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-17",
+            "nf-18",
+            "nf-19",
+            "nf-20",
+            "nf-21"
+          ]
+        }
+      },
+      "text-22": {
+        "id": "text-22",
+        "parentId": "container-root",
+        "type": "text",
+        "data": {
+          "content": "Anima: the CFG field drives \"guidance_scale\". Needs a Qwen3 0.6B encoder and a QwenImage/Wan 2.1 VAE - all three loader fields are required. \"Detect\" is a Grounding DINO text prompt - Face, hands, eyes, hair. Denoising Start around 0.35-0.5 adds detail without changing identity."
+        }
+      },
+      "container-root": {
+        "id": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "column",
+          "children": [
+            "heading-0",
+            "container-1",
+            "heading-5",
+            "container-6",
+            "heading-10",
+            "container-11",
+            "container-13",
+            "heading-15",
+            "container-16",
+            "text-22"
+          ]
+        }
+      }
+    },
+    "rootElementId": "container-root"
+  },
+  "nodes": [
+    {
+      "id": "f0000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000008",
+        "version": "1.0.2",
+        "nodePack": "invokeai",
+        "label": "Input Image",
+        "notes": "",
+        "type": "image",
+        "inputs": {
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -1100
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000020",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000020",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detect (what to improve)",
+            "description": "Grounding DINO prompt, e.g. Face / hands / eyes.",
+            "value": "Face"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -960
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000022",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000022",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detection Threshold",
+            "description": "",
+            "value": 0.3
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -870
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000001",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Positive Prompt",
+            "description": "",
+            "value": "a detailed face, sharp focus"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -780
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000002",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Negative Prompt",
+            "description": "",
+            "value": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -640
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000005",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Seed",
+            "description": "",
+            "value": 0
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -500
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000006",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Steps",
+            "description": "",
+            "value": 30
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -410
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000007",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "CFG / Guidance",
+            "description": "",
+            "value": 5
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -320
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000009",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Denoising Start",
+            "description": "Lower = more change in the detailed region.",
+            "value": 0.4
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -230
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000021",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000021",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detail Size",
+            "description": "Working resolution for the cropped region (area = this squared).",
+            "value": 1024
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -140
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000010",
+        "version": "1.4.0",
+        "nodePack": "invokeai",
+        "label": "Model - Anima",
+        "notes": "",
+        "type": "anima_model_loader",
+        "inputs": {
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "44523276-7e3d-4492-84a5-d1bd9e77a228",
+              "hash": "blake3:b10e04a8bf3a17cae4749fb064d7c610c92fd1a70c62c3201421d38f0b0a20df",
+              "name": "anima-base-v1.0",
+              "base": "anima",
+              "type": "main"
+            }
+          },
+          "vae_model": {
+            "name": "vae_model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "9665d186-3c83-4f4b-93e6-535de70dfc66",
+              "hash": "blake3:1018b941788940c4dfc449d5d749950cae58c9a7f6a794b00a2f8321abc885d1",
+              "name": "qwen_image_vae",
+              "base": "anima",
+              "type": "vae"
+            }
+          },
+          "qwen3_encoder_model": {
+            "name": "qwen3_encoder_model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "e3e673a6-00e8-495b-8c6c-813699bfc84c",
+              "hash": "blake3:b9079c6ea657a7cb4ae9add2d24e0f8cfdaff6d2da96d7657a53676e013dede9",
+              "name": "qwen_3_06b_base",
+              "base": "any",
+              "type": "qwen3_encoder"
+            }
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2200,
+        "y": -1400
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000009",
+        "version": "1.4.0",
+        "nodePack": "invokeai",
+        "label": "Prompt POS",
+        "notes": "",
+        "type": "anima_text_encoder",
+        "inputs": {
+          "prompt": {
+            "name": "prompt",
+            "label": "",
+            "description": ""
+          },
+          "qwen3_encoder": {
+            "name": "qwen3_encoder",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1150,
+        "y": -900
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000a",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000a",
+        "version": "1.4.0",
+        "nodePack": "invokeai",
+        "label": "Prompt NEG (only used at guidance > 1)",
+        "notes": "",
+        "type": "anima_text_encoder",
+        "inputs": {
+          "prompt": {
+            "name": "prompt",
+            "label": "",
+            "description": ""
+          },
+          "qwen3_encoder": {
+            "name": "qwen3_encoder",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1150,
+        "y": -500
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Detect",
+        "notes": "",
+        "type": "grounding_dino",
+        "inputs": {
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": "",
+            "value": "grounding-dino-tiny"
+          },
+          "prompt": {
+            "name": "prompt",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "detection_threshold": {
+            "name": "detection_threshold",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1750,
+        "y": -1100
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000002",
+        "version": "1.3.0",
+        "nodePack": "invokeai",
+        "label": "Segment",
+        "notes": "",
+        "type": "segment_anything",
+        "inputs": {
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": "",
+            "value": "segment-anything-base"
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "bounding_boxes": {
+            "name": "bounding_boxes",
+            "label": "",
+            "description": ""
+          },
+          "point_lists": {
+            "name": "point_lists",
+            "label": "",
+            "description": ""
+          },
+          "apply_polygon_refinement": {
+            "name": "apply_polygon_refinement",
+            "label": "",
+            "description": "",
+            "value": true
+          },
+          "mask_filter": {
+            "name": "mask_filter",
+            "label": "",
+            "description": "",
+            "value": "all"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1450,
+        "y": -1100
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000003",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "invert_tensor_mask",
+        "inputs": {
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1150,
+        "y": -1100
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000004",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "tensor_mask_to_image",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -900,
+        "y": -1100
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000005",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "get_image_mask_bounding_box",
+        "inputs": {
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          },
+          "margin": {
+            "name": "margin",
+            "label": "",
+            "description": "",
+            "value": 32
+          },
+          "mask_color": {
+            "name": "mask_color",
+            "label": "",
+            "description": "",
+            "value": {
+              "r": 0,
+              "g": 0,
+              "b": 0,
+              "a": 255
+            }
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -650,
+        "y": -1100
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000006",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Crop source",
+        "notes": "",
+        "type": "crop_image_to_bounding_box",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "bounding_box": {
+            "name": "bounding_box",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -400,
+        "y": -1250
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000007",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Crop mask",
+        "notes": "",
+        "type": "crop_image_to_bounding_box",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "bounding_box": {
+            "name": "bounding_box",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -400,
+        "y": -1050
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000008",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "aspect = w / h",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "DIV"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -100,
+        "y": -1250
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000009",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "sqrt(aspect)",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "SQRT"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 1
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 150,
+        "y": -1250
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000a",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000a",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "D * sqrt(a)",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MUL"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 400,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000b",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000b",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "D / sqrt(a)",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "DIV"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 400,
+        "y": -1200
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000016",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000016",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "min = D / 2",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "DIV"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 2
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 400,
+        "y": -1050
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000c",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000c",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "clamp w",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MAX"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 650,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000d",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000d",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "clamp h",
+        "notes": "",
+        "type": "float_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MAX"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 650,
+        "y": -1200
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000e",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000e",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "Width",
+        "notes": "",
+        "type": "float_to_int",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          },
+          "multiple": {
+            "name": "multiple",
+            "label": "",
+            "description": "",
+            "value": 16
+          },
+          "method": {
+            "name": "method",
+            "label": "",
+            "description": "",
+            "value": "Floor"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 900,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-00000000000f",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-00000000000f",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "Height",
+        "notes": "",
+        "type": "float_to_int",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          },
+          "multiple": {
+            "name": "multiple",
+            "label": "",
+            "description": "",
+            "value": 16
+          },
+          "method": {
+            "name": "method",
+            "label": "",
+            "description": "",
+            "value": "Floor"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 900,
+        "y": -1200
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000010",
+        "version": "1.2.2",
+        "nodePack": "invokeai",
+        "label": "Scale crop up",
+        "notes": "",
+        "type": "img_resize",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "resample_mode": {
+            "name": "resample_mode",
+            "label": "",
+            "description": "",
+            "value": "bicubic"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 1150,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000011",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000011",
+        "version": "1.2.2",
+        "nodePack": "invokeai",
+        "label": "Scale mask up",
+        "notes": "",
+        "type": "img_resize",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "resample_mode": {
+            "name": "resample_mode",
+            "label": "",
+            "description": "",
+            "value": "bicubic"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 1150,
+        "y": -1150
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000012",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000012",
+        "version": "1.3.0",
+        "nodePack": "invokeai",
+        "label": "Denoise mask",
+        "notes": "",
+        "type": "create_gradient_mask",
+        "inputs": {
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          },
+          "edge_radius": {
+            "name": "edge_radius",
+            "label": "",
+            "description": "",
+            "value": 16
+          },
+          "coherence_mode": {
+            "name": "coherence_mode",
+            "label": "",
+            "description": "",
+            "value": "Gaussian Blur"
+          },
+          "minimum_denoise": {
+            "name": "minimum_denoise",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "unet": {
+            "name": "unet",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          },
+          "tiled": {
+            "name": "tiled",
+            "label": "",
+            "description": "",
+            "value": false
+          },
+          "fp32": {
+            "name": "fp32",
+            "label": "",
+            "description": "",
+            "value": false
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 1400,
+        "y": -1150
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000f",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000f",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "anima_i2l",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 1400,
+        "y": -1350
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000b",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000b",
+        "version": "1.8.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "anima_denoise",
+        "inputs": {
+          "latents": {
+            "name": "latents",
+            "label": "",
+            "description": ""
+          },
+          "noise": {
+            "name": "noise",
+            "label": "",
+            "description": ""
+          },
+          "denoise_mask": {
+            "name": "denoise_mask",
+            "label": "",
+            "description": ""
+          },
+          "denoising_start": {
+            "name": "denoising_start",
+            "label": "",
+            "description": ""
+          },
+          "denoising_end": {
+            "name": "denoising_end",
+            "label": "",
+            "description": "",
+            "value": 1
+          },
+          "add_noise": {
+            "name": "add_noise",
+            "label": "",
+            "description": "",
+            "value": true
+          },
+          "transformer": {
+            "name": "transformer",
+            "label": "",
+            "description": ""
+          },
+          "positive_conditioning": {
+            "name": "positive_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "negative_conditioning": {
+            "name": "negative_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "guidance_scale": {
+            "name": "guidance_scale",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "steps": {
+            "name": "steps",
+            "label": "",
+            "description": ""
+          },
+          "seed": {
+            "name": "seed",
+            "label": "",
+            "description": ""
+          },
+          "control_lllite": {
+            "name": "control_lllite",
+            "label": "",
+            "description": ""
+          },
+          "scheduler": {
+            "name": "scheduler",
+            "label": "",
+            "description": "",
+            "value": "euler"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -250,
+        "y": -700
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000c",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000c",
+        "version": "1.0.3",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "anima_l2i",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "latents": {
+            "name": "latents",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2100,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000013",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000013",
+        "version": "1.2.2",
+        "nodePack": "invokeai",
+        "label": "Scale back down",
+        "notes": "",
+        "type": "img_resize",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "resample_mode": {
+            "name": "resample_mode",
+            "label": "",
+            "description": "",
+            "value": "bicubic"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2350,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000014",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000014",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Composite region",
+        "notes": "",
+        "type": "canvas_v2_mask_and_crop",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "source_image": {
+            "name": "source_image",
+            "label": "",
+            "description": ""
+          },
+          "generated_image": {
+            "name": "generated_image",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          },
+          "mask_blur": {
+            "name": "mask_blur",
+            "label": "",
+            "description": "",
+            "value": 32
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2600,
+        "y": -1350
+      }
+    },
+    {
+      "id": "30000000-0000-4000-8000-000000000015",
+      "type": "invocation",
+      "data": {
+        "id": "30000000-0000-4000-8000-000000000015",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Paste into original",
+        "notes": "",
+        "type": "paste_image_into_bounding_box",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "source_image": {
+            "name": "source_image",
+            "label": "",
+            "description": ""
+          },
+          "target_image": {
+            "name": "target_image",
+            "label": "",
+            "description": ""
+          },
+          "bounding_box": {
+            "name": "bounding_box",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2850,
+        "y": -1350
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "version": "2.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "core_metadata",
+        "inputs": {
+          "generation_mode": {
+            "name": "generation_mode",
+            "label": "",
+            "description": "",
+            "value": "anima_img2img"
+          },
+          "positive_prompt": {
+            "name": "positive_prompt",
+            "label": "",
+            "description": ""
+          },
+          "negative_prompt": {
+            "name": "negative_prompt",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "seed": {
+            "name": "seed",
+            "label": "",
+            "description": ""
+          },
+          "rand_device": {
+            "name": "rand_device",
+            "label": "",
+            "description": ""
+          },
+          "cfg_scale": {
+            "name": "cfg_scale",
+            "label": "",
+            "description": ""
+          },
+          "cfg_rescale_multiplier": {
+            "name": "cfg_rescale_multiplier",
+            "label": "",
+            "description": ""
+          },
+          "steps": {
+            "name": "steps",
+            "label": "",
+            "description": ""
+          },
+          "scheduler": {
+            "name": "scheduler",
+            "label": "",
+            "description": ""
+          },
+          "seamless_x": {
+            "name": "seamless_x",
+            "label": "",
+            "description": ""
+          },
+          "seamless_y": {
+            "name": "seamless_y",
+            "label": "",
+            "description": ""
+          },
+          "clip_skip": {
+            "name": "clip_skip",
+            "label": "",
+            "description": ""
+          },
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": ""
+          },
+          "controlnets": {
+            "name": "controlnets",
+            "label": "",
+            "description": ""
+          },
+          "ipAdapters": {
+            "name": "ipAdapters",
+            "label": "",
+            "description": ""
+          },
+          "t2iAdapters": {
+            "name": "t2iAdapters",
+            "label": "",
+            "description": ""
+          },
+          "loras": {
+            "name": "loras",
+            "label": "",
+            "description": ""
+          },
+          "strength": {
+            "name": "strength",
+            "label": "",
+            "description": ""
+          },
+          "init_image": {
+            "name": "init_image",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          },
+          "qwen3_encoder": {
+            "name": "qwen3_encoder",
+            "label": "",
+            "description": ""
+          },
+          "ideogram4_caption": {
+            "name": "ideogram4_caption",
+            "label": "",
+            "description": ""
+          },
+          "hrf_enabled": {
+            "name": "hrf_enabled",
+            "label": "",
+            "description": ""
+          },
+          "hrf_method": {
+            "name": "hrf_method",
+            "label": "",
+            "description": ""
+          },
+          "hrf_strength": {
+            "name": "hrf_strength",
+            "label": "",
+            "description": ""
+          },
+          "positive_style_prompt": {
+            "name": "positive_style_prompt",
+            "label": "",
+            "description": ""
+          },
+          "negative_style_prompt": {
+            "name": "negative_style_prompt",
+            "label": "",
+            "description": ""
+          },
+          "refiner_model": {
+            "name": "refiner_model",
+            "label": "",
+            "description": ""
+          },
+          "refiner_cfg_scale": {
+            "name": "refiner_cfg_scale",
+            "label": "",
+            "description": ""
+          },
+          "refiner_steps": {
+            "name": "refiner_steps",
+            "label": "",
+            "description": ""
+          },
+          "refiner_scheduler": {
+            "name": "refiner_scheduler",
+            "label": "",
+            "description": ""
+          },
+          "refiner_positive_aesthetic_score": {
+            "name": "refiner_positive_aesthetic_score",
+            "label": "",
+            "description": ""
+          },
+          "refiner_negative_aesthetic_score": {
+            "name": "refiner_negative_aesthetic_score",
+            "label": "",
+            "description": ""
+          },
+          "refiner_start": {
+            "name": "refiner_start",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2850,
+        "y": -800
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000008",
+        "version": "1.2.2",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "save_image",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": false,
+        "useCache": false
+      },
+      "position": {
+        "x": 3150,
+        "y": -1350
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": -300
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000003",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "latents"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": -150
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000004",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "metadata"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": 0
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000005",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": "",
+            "value": []
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": -220
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000006",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": -70
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000007",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 2400,
+        "y": -150
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000010",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": 80
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010qwen3_encoder-20000000-0000-4000-8000-000000000009qwen3_encoder",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "qwen3_encoder",
+      "targetHandle": "qwen3_encoder"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010qwen3_encoder-20000000-0000-4000-8000-00000000000aqwen3_encoder",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "qwen3_encoder",
+      "targetHandle": "qwen3_encoder"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000001value-20000000-0000-4000-8000-000000000009prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "value",
+      "targetHandle": "prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-00000000000aprompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "value",
+      "targetHandle": "prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000008image-30000000-0000-4000-8000-000000000001image",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000008",
+      "target": "30000000-0000-4000-8000-000000000001",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000020value-30000000-0000-4000-8000-000000000001prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000020",
+      "target": "30000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000022value-30000000-0000-4000-8000-000000000001detection_threshold",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000022",
+      "target": "30000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "detection_threshold"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000008image-30000000-0000-4000-8000-000000000002image",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000008",
+      "target": "30000000-0000-4000-8000-000000000002",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000001collection-30000000-0000-4000-8000-000000000002bounding_boxes",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000001",
+      "target": "30000000-0000-4000-8000-000000000002",
+      "sourceHandle": "collection",
+      "targetHandle": "bounding_boxes"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000002mask-30000000-0000-4000-8000-000000000003mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000002",
+      "target": "30000000-0000-4000-8000-000000000003",
+      "sourceHandle": "mask",
+      "targetHandle": "mask"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000003mask-30000000-0000-4000-8000-000000000004mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000003",
+      "target": "30000000-0000-4000-8000-000000000004",
+      "sourceHandle": "mask",
+      "targetHandle": "mask"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000004image-30000000-0000-4000-8000-000000000005mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000004",
+      "target": "30000000-0000-4000-8000-000000000005",
+      "sourceHandle": "image",
+      "targetHandle": "mask"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000008image-30000000-0000-4000-8000-000000000006image",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000008",
+      "target": "30000000-0000-4000-8000-000000000006",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000005bounding_box-30000000-0000-4000-8000-000000000006bounding_box",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000005",
+      "target": "30000000-0000-4000-8000-000000000006",
+      "sourceHandle": "bounding_box",
+      "targetHandle": "bounding_box"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000004image-30000000-0000-4000-8000-000000000007image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000004",
+      "target": "30000000-0000-4000-8000-000000000007",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000005bounding_box-30000000-0000-4000-8000-000000000007bounding_box",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000005",
+      "target": "30000000-0000-4000-8000-000000000007",
+      "sourceHandle": "bounding_box",
+      "targetHandle": "bounding_box"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006width-30000000-0000-4000-8000-000000000008a",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000008",
+      "sourceHandle": "width",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006height-30000000-0000-4000-8000-000000000008b",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000008",
+      "sourceHandle": "height",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000008value-30000000-0000-4000-8000-000000000009a",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000008",
+      "target": "30000000-0000-4000-8000-000000000009",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000021value-30000000-0000-4000-8000-00000000000aa",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000021",
+      "target": "30000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000009value-30000000-0000-4000-8000-00000000000ab",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000009",
+      "target": "30000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000021value-30000000-0000-4000-8000-00000000000ba",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000021",
+      "target": "30000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000009value-30000000-0000-4000-8000-00000000000bb",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000009",
+      "target": "30000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000021value-30000000-0000-4000-8000-000000000016a",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000021",
+      "target": "30000000-0000-4000-8000-000000000016",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000avalue-30000000-0000-4000-8000-00000000000ca",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000a",
+      "target": "30000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000016value-30000000-0000-4000-8000-00000000000cb",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000016",
+      "target": "30000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000bvalue-30000000-0000-4000-8000-00000000000da",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000b",
+      "target": "30000000-0000-4000-8000-00000000000d",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000016value-30000000-0000-4000-8000-00000000000db",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000016",
+      "target": "30000000-0000-4000-8000-00000000000d",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000cvalue-30000000-0000-4000-8000-00000000000evalue",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000c",
+      "target": "30000000-0000-4000-8000-00000000000e",
+      "sourceHandle": "value",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000dvalue-30000000-0000-4000-8000-00000000000fvalue",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000d",
+      "target": "30000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006image-30000000-0000-4000-8000-000000000010image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000010",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000evalue-30000000-0000-4000-8000-000000000010width",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000e",
+      "target": "30000000-0000-4000-8000-000000000010",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000fvalue-30000000-0000-4000-8000-000000000010height",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000f",
+      "target": "30000000-0000-4000-8000-000000000010",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000007image-30000000-0000-4000-8000-000000000011image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000007",
+      "target": "30000000-0000-4000-8000-000000000011",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000evalue-30000000-0000-4000-8000-000000000011width",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000e",
+      "target": "30000000-0000-4000-8000-000000000011",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000fvalue-30000000-0000-4000-8000-000000000011height",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000f",
+      "target": "30000000-0000-4000-8000-000000000011",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000011image-30000000-0000-4000-8000-000000000012mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000011",
+      "target": "30000000-0000-4000-8000-000000000012",
+      "sourceHandle": "image",
+      "targetHandle": "mask"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000010image-20000000-0000-4000-8000-00000000000fimage",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010vae-20000000-0000-4000-8000-00000000000fvae",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "vae",
+      "targetHandle": "vae"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000009conditioning-20000000-0000-4000-8000-00000000000bpositive_conditioning",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000009",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "conditioning",
+      "targetHandle": "positive_conditioning"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000aconditioning-20000000-0000-4000-8000-00000000000bnegative_conditioning",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000a",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "conditioning",
+      "targetHandle": "negative_conditioning"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000006value-20000000-0000-4000-8000-00000000000bsteps",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "steps"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000007value-20000000-0000-4000-8000-00000000000bguidance_scale",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000007",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "guidance_scale"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000005value-20000000-0000-4000-8000-00000000000bseed",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "seed"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010transformer-20000000-0000-4000-8000-00000000000btransformer",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "transformer",
+      "targetHandle": "transformer"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000evalue-20000000-0000-4000-8000-00000000000bwidth",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000e",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000fvalue-20000000-0000-4000-8000-00000000000bheight",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000f",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000flatents-20000000-0000-4000-8000-00000000000blatents",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000f",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "latents",
+      "targetHandle": "latents"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000009value-20000000-0000-4000-8000-00000000000bdenoising_start",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000009",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "denoising_start"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000012denoise_mask-20000000-0000-4000-8000-00000000000bdenoise_mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000012",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "denoise_mask",
+      "targetHandle": "denoise_mask"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000blatents-20000000-0000-4000-8000-00000000000clatents",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000b",
+      "target": "20000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "latents",
+      "targetHandle": "latents"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010vae-20000000-0000-4000-8000-00000000000cvae",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "vae",
+      "targetHandle": "vae"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000cimage-30000000-0000-4000-8000-000000000013image",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000c",
+      "target": "30000000-0000-4000-8000-000000000013",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006width-30000000-0000-4000-8000-000000000013width",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000013",
+      "sourceHandle": "width",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006height-30000000-0000-4000-8000-000000000013height",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000013",
+      "sourceHandle": "height",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000006image-30000000-0000-4000-8000-000000000014source_image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000006",
+      "target": "30000000-0000-4000-8000-000000000014",
+      "sourceHandle": "image",
+      "targetHandle": "source_image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000013image-30000000-0000-4000-8000-000000000014generated_image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000013",
+      "target": "30000000-0000-4000-8000-000000000014",
+      "sourceHandle": "image",
+      "targetHandle": "generated_image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000007image-30000000-0000-4000-8000-000000000014mask",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000007",
+      "target": "30000000-0000-4000-8000-000000000014",
+      "sourceHandle": "image",
+      "targetHandle": "mask"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000014image-30000000-0000-4000-8000-000000000015source_image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000014",
+      "target": "30000000-0000-4000-8000-000000000015",
+      "sourceHandle": "image",
+      "targetHandle": "source_image"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000008image-30000000-0000-4000-8000-000000000015target_image",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000008",
+      "target": "30000000-0000-4000-8000-000000000015",
+      "sourceHandle": "image",
+      "targetHandle": "target_image"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000005bounding_box-30000000-0000-4000-8000-000000000015bounding_box",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000005",
+      "target": "30000000-0000-4000-8000-000000000015",
+      "sourceHandle": "bounding_box",
+      "targetHandle": "bounding_box"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000001value-20000000-0000-4000-8000-000000000001positive_prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "positive_prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-000000000001negative_prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "negative_prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000005value-20000000-0000-4000-8000-000000000001seed",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "seed"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000006value-20000000-0000-4000-8000-000000000001steps",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "steps"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000007value-20000000-0000-4000-8000-000000000001cfg_scale",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000007",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "cfg_scale"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000009value-20000000-0000-4000-8000-000000000001strength",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000009",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "strength"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000evalue-20000000-0000-4000-8000-000000000001width",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000e",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-00000000000fvalue-20000000-0000-4000-8000-000000000001height",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-00000000000f",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-30000000-0000-4000-8000-000000000015image-20000000-0000-4000-8000-000000000008image",
+      "type": "default",
+      "source": "30000000-0000-4000-8000-000000000015",
+      "target": "20000000-0000-4000-8000-000000000008",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000001metadata-20000000-0000-4000-8000-000000000008metadata",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000008",
+      "sourceHandle": "metadata",
+      "targetHandle": "metadata"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000008image-20000000-0000-4000-8000-000000000002value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000008",
+      "target": "20000000-0000-4000-8000-000000000002",
+      "sourceHandle": "image",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000blatents-20000000-0000-4000-8000-000000000003value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000b",
+      "target": "20000000-0000-4000-8000-000000000003",
+      "sourceHandle": "latents",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000001metadata-20000000-0000-4000-8000-000000000004value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000004",
+      "sourceHandle": "metadata",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-000000000005item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-000000000005",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000005collection-20000000-0000-4000-8000-000000000006collection",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-000000000006",
+      "sourceHandle": "collection",
+      "targetHandle": "collection"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000003value-20000000-0000-4000-8000-000000000006item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000003",
+      "target": "20000000-0000-4000-8000-000000000006",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000006collection-20000000-0000-4000-8000-000000000010collection",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-000000000010",
+      "sourceHandle": "collection",
+      "targetHandle": "collection"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000004value-20000000-0000-4000-8000-000000000010item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000004",
+      "target": "20000000-0000-4000-8000-000000000010",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000010collection-20000000-0000-4000-8000-000000000007values",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000007",
+      "sourceHandle": "collection",
+      "targetHandle": "values"
+    }
+  ]
+}

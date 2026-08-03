@@ -1,0 +1,1630 @@
+{
+  "name": "TXT2IMG - FLUX",
+  "author": "Pfannkuchensack",
+  "description": "Callable text-to-image sub workflow (FLUX). Returns image + latents + metadata.",
+  "version": "1.0.0",
+  "contact": "",
+  "tags": "callable, sub workflow, txt2img, FLUX",
+  "notes": "Pfannkuchensacks Workflow Package\n\nCallable sub workflow for the \"Call Saved Workflow\" node.\n\nReturns three named values:\n  image     - the finished image (use this to chain into the next call)\n  latents   - the raw latents (usable, but the editor cannot wire a LatentsField\n              into a Call Saved Workflow node yet, so chain on \"image\")\n  metadata  - core metadata for the run\n\nEvery workflow in this series uses the SAME node ids and field names for its\nshared inputs, so swapping the selected workflow on a Call Saved Workflow node\nkeeps the existing wiring intact.\n\nNote: the model is set on the loader node inside this workflow. It is not written\ninto the metadata, because the Z-Image and Krea-2 loaders only accept a directly\nselected model (Input.Direct) and no loader outputs a model identifier, so there\nis no single source of truth to wire into core_metadata.model.",
+  "exposedFields": [
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "t5_encoder_model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "clip_embed_model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000010",
+      "fieldName": "vae_model"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000001",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000002",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000003",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000004",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000005",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000006",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "f0000000-0000-4000-8000-000000000007",
+      "fieldName": "value"
+    }
+  ],
+  "meta": {
+    "category": "user",
+    "version": "3.0.0"
+  },
+  "form": {
+    "elements": {
+      "heading-0": {
+        "id": "heading-0",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Model"
+        }
+      },
+      "nf-2": {
+        "id": "nf-2",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "model"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-3": {
+        "id": "nf-3",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "t5_encoder_model"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-4": {
+        "id": "nf-4",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "clip_embed_model"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-5": {
+        "id": "nf-5",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000010",
+            "fieldName": "vae_model"
+          },
+          "showDescription": false
+        }
+      },
+      "container-1": {
+        "id": "container-1",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-2",
+            "nf-3",
+            "nf-4",
+            "nf-5"
+          ]
+        }
+      },
+      "heading-6": {
+        "id": "heading-6",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Prompt"
+        }
+      },
+      "nf-8": {
+        "id": "nf-8",
+        "parentId": "container-7",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000001",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-7": {
+        "id": "container-7",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-8"
+          ]
+        }
+      },
+      "nf-10": {
+        "id": "nf-10",
+        "parentId": "container-9",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000002",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-9": {
+        "id": "container-9",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-10"
+          ]
+        }
+      },
+      "heading-11": {
+        "id": "heading-11",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Generation"
+        }
+      },
+      "nf-13": {
+        "id": "nf-13",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000003",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-14": {
+        "id": "nf-14",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000004",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-15": {
+        "id": "nf-15",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000005",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-16": {
+        "id": "nf-16",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000006",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-17": {
+        "id": "nf-17",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "f0000000-0000-4000-8000-000000000007",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-12": {
+        "id": "container-12",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-13",
+            "nf-14",
+            "nf-15",
+            "nf-16",
+            "nf-17"
+          ]
+        }
+      },
+      "text-18": {
+        "id": "text-18",
+        "parentId": "container-root",
+        "type": "text",
+        "data": {
+          "content": "FLUX: the CFG field drives \"guidance\" (distilled), typical 3.5-4.0. Steps ~25-30."
+        }
+      },
+      "container-root": {
+        "id": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "column",
+          "children": [
+            "heading-0",
+            "container-1",
+            "heading-6",
+            "container-7",
+            "container-9",
+            "heading-11",
+            "container-12",
+            "text-18"
+          ]
+        }
+      }
+    },
+    "rootElementId": "container-root"
+  },
+  "nodes": [
+    {
+      "id": "f0000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000001",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Positive Prompt",
+            "description": "",
+            "value": "a wide cinematic landscape, dramatic light"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -900
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000002",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Negative Prompt",
+            "description": "",
+            "value": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -700
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000003",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Width",
+            "description": "",
+            "value": 1280
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -500
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000004",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Height",
+            "description": "",
+            "value": 720
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -400
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000005",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Seed",
+            "description": "",
+            "value": 0
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -300
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000006",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Steps",
+            "description": "",
+            "value": 30
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -200
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000007",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "CFG / Guidance",
+            "description": "",
+            "value": 5
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -100
+      }
+    },
+    {
+      "id": "f0000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "f0000000-0000-4000-8000-000000000010",
+        "version": "1.0.7",
+        "nodePack": "invokeai",
+        "label": "Model - FLUX",
+        "notes": "",
+        "type": "flux_model_loader",
+        "inputs": {
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "0894f75d-18e4-43f6-b984-1a4f957aad16",
+              "hash": "blake3:c5e0535acf755935d2fc823d72e3ff8e66cca564f13078f7df4ffb78aa921ec2",
+              "name": "getphatFLUXReality_v30",
+              "base": "flux",
+              "type": "main"
+            }
+          },
+          "t5_encoder_model": {
+            "name": "t5_encoder_model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "a0d9354c-ee72-47d0-92df-c34b10048f39",
+              "hash": "blake3:38aafa42899cf4fe8b1055d17de6e7fe15af104d193da4a320e34ca24db32754",
+              "name": "t5_bnb_int8_quantized_encoder",
+              "base": "any",
+              "type": "t5_encoder"
+            }
+          },
+          "clip_embed_model": {
+            "name": "clip_embed_model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "e09c321a-ad01-44c5-b3fc-25e5fb9c7a2c",
+              "hash": "blake3:17c19f0ef941c3b7609a9c94a659ca5364de0be364a91d4179f0e39ba17c3b70",
+              "name": "text_encoder",
+              "base": "any",
+              "type": "clip_embed"
+            }
+          },
+          "vae_model": {
+            "name": "vae_model",
+            "label": "",
+            "description": "",
+            "value": {
+              "key": "12c9d482-bede-485e-a7a1-cf1d21116fd5",
+              "hash": "blake3:ce21cb76364aa6e2421311cf4a4b5eb052a76c4f1cd207b50703d8978198a068",
+              "name": "ae",
+              "base": "flux",
+              "type": "vae"
+            }
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -1400
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000009",
+        "version": "1.1.2",
+        "nodePack": "invokeai",
+        "label": "Prompt POS",
+        "notes": "",
+        "type": "flux_text_encoder",
+        "inputs": {
+          "clip": {
+            "name": "clip",
+            "label": "",
+            "description": ""
+          },
+          "t5_encoder": {
+            "name": "t5_encoder",
+            "label": "",
+            "description": ""
+          },
+          "t5_max_seq_len": {
+            "name": "t5_max_seq_len",
+            "label": "",
+            "description": ""
+          },
+          "prompt": {
+            "name": "prompt",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1150,
+        "y": -900
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000a",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000a",
+        "version": "1.1.2",
+        "nodePack": "invokeai",
+        "label": "Prompt NEG (only used at CFG > 1)",
+        "notes": "",
+        "type": "flux_text_encoder",
+        "inputs": {
+          "clip": {
+            "name": "clip",
+            "label": "",
+            "description": ""
+          },
+          "t5_encoder": {
+            "name": "t5_encoder",
+            "label": "",
+            "description": ""
+          },
+          "t5_max_seq_len": {
+            "name": "t5_max_seq_len",
+            "label": "",
+            "description": ""
+          },
+          "prompt": {
+            "name": "prompt",
+            "label": "",
+            "description": ""
+          },
+          "mask": {
+            "name": "mask",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1150,
+        "y": -500
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000b",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000b",
+        "version": "4.6.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "flux_denoise",
+        "inputs": {
+          "latents": {
+            "name": "latents",
+            "label": "",
+            "description": ""
+          },
+          "noise": {
+            "name": "noise",
+            "label": "",
+            "description": ""
+          },
+          "denoise_mask": {
+            "name": "denoise_mask",
+            "label": "",
+            "description": ""
+          },
+          "denoising_start": {
+            "name": "denoising_start",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "denoising_end": {
+            "name": "denoising_end",
+            "label": "",
+            "description": "",
+            "value": 1
+          },
+          "add_noise": {
+            "name": "add_noise",
+            "label": "",
+            "description": "",
+            "value": true
+          },
+          "transformer": {
+            "name": "transformer",
+            "label": "",
+            "description": ""
+          },
+          "control_lora": {
+            "name": "control_lora",
+            "label": "",
+            "description": ""
+          },
+          "positive_text_conditioning": {
+            "name": "positive_text_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "negative_text_conditioning": {
+            "name": "negative_text_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "redux_conditioning": {
+            "name": "redux_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "fill_conditioning": {
+            "name": "fill_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "cfg_scale": {
+            "name": "cfg_scale",
+            "label": "",
+            "description": "",
+            "value": 1
+          },
+          "cfg_scale_start_step": {
+            "name": "cfg_scale_start_step",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "cfg_scale_end_step": {
+            "name": "cfg_scale_end_step",
+            "label": "",
+            "description": "",
+            "value": -1
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "num_steps": {
+            "name": "num_steps",
+            "label": "",
+            "description": ""
+          },
+          "scheduler": {
+            "name": "scheduler",
+            "label": "",
+            "description": "",
+            "value": "euler"
+          },
+          "guidance": {
+            "name": "guidance",
+            "label": "",
+            "description": ""
+          },
+          "seed": {
+            "name": "seed",
+            "label": "",
+            "description": ""
+          },
+          "control": {
+            "name": "control",
+            "label": "",
+            "description": ""
+          },
+          "controlnet_vae": {
+            "name": "controlnet_vae",
+            "label": "",
+            "description": ""
+          },
+          "ip_adapter": {
+            "name": "ip_adapter",
+            "label": "",
+            "description": ""
+          },
+          "kontext_conditioning": {
+            "name": "kontext_conditioning",
+            "label": "",
+            "description": ""
+          },
+          "dype_preset": {
+            "name": "dype_preset",
+            "label": "",
+            "description": "",
+            "value": "off"
+          },
+          "dype_scale": {
+            "name": "dype_scale",
+            "label": "",
+            "description": ""
+          },
+          "dype_exponent": {
+            "name": "dype_exponent",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -250,
+        "y": -700
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-00000000000c",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-00000000000c",
+        "version": "1.0.2",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "flux_vae_decode",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "latents": {
+            "name": "latents",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 300,
+        "y": -700
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "version": "2.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "core_metadata",
+        "inputs": {
+          "generation_mode": {
+            "name": "generation_mode",
+            "label": "",
+            "description": "",
+            "value": "flux_txt2img"
+          },
+          "positive_prompt": {
+            "name": "positive_prompt",
+            "label": "",
+            "description": ""
+          },
+          "negative_prompt": {
+            "name": "negative_prompt",
+            "label": "",
+            "description": ""
+          },
+          "width": {
+            "name": "width",
+            "label": "",
+            "description": ""
+          },
+          "height": {
+            "name": "height",
+            "label": "",
+            "description": ""
+          },
+          "seed": {
+            "name": "seed",
+            "label": "",
+            "description": ""
+          },
+          "rand_device": {
+            "name": "rand_device",
+            "label": "",
+            "description": ""
+          },
+          "cfg_scale": {
+            "name": "cfg_scale",
+            "label": "",
+            "description": ""
+          },
+          "cfg_rescale_multiplier": {
+            "name": "cfg_rescale_multiplier",
+            "label": "",
+            "description": ""
+          },
+          "steps": {
+            "name": "steps",
+            "label": "",
+            "description": ""
+          },
+          "scheduler": {
+            "name": "scheduler",
+            "label": "",
+            "description": ""
+          },
+          "seamless_x": {
+            "name": "seamless_x",
+            "label": "",
+            "description": ""
+          },
+          "seamless_y": {
+            "name": "seamless_y",
+            "label": "",
+            "description": ""
+          },
+          "clip_skip": {
+            "name": "clip_skip",
+            "label": "",
+            "description": ""
+          },
+          "model": {
+            "name": "model",
+            "label": "",
+            "description": ""
+          },
+          "controlnets": {
+            "name": "controlnets",
+            "label": "",
+            "description": ""
+          },
+          "ipAdapters": {
+            "name": "ipAdapters",
+            "label": "",
+            "description": ""
+          },
+          "t2iAdapters": {
+            "name": "t2iAdapters",
+            "label": "",
+            "description": ""
+          },
+          "loras": {
+            "name": "loras",
+            "label": "",
+            "description": ""
+          },
+          "strength": {
+            "name": "strength",
+            "label": "",
+            "description": ""
+          },
+          "init_image": {
+            "name": "init_image",
+            "label": "",
+            "description": ""
+          },
+          "vae": {
+            "name": "vae",
+            "label": "",
+            "description": ""
+          },
+          "qwen3_encoder": {
+            "name": "qwen3_encoder",
+            "label": "",
+            "description": ""
+          },
+          "ideogram4_caption": {
+            "name": "ideogram4_caption",
+            "label": "",
+            "description": ""
+          },
+          "hrf_enabled": {
+            "name": "hrf_enabled",
+            "label": "",
+            "description": ""
+          },
+          "hrf_method": {
+            "name": "hrf_method",
+            "label": "",
+            "description": ""
+          },
+          "hrf_strength": {
+            "name": "hrf_strength",
+            "label": "",
+            "description": ""
+          },
+          "positive_style_prompt": {
+            "name": "positive_style_prompt",
+            "label": "",
+            "description": ""
+          },
+          "negative_style_prompt": {
+            "name": "negative_style_prompt",
+            "label": "",
+            "description": ""
+          },
+          "refiner_model": {
+            "name": "refiner_model",
+            "label": "",
+            "description": ""
+          },
+          "refiner_cfg_scale": {
+            "name": "refiner_cfg_scale",
+            "label": "",
+            "description": ""
+          },
+          "refiner_steps": {
+            "name": "refiner_steps",
+            "label": "",
+            "description": ""
+          },
+          "refiner_scheduler": {
+            "name": "refiner_scheduler",
+            "label": "",
+            "description": ""
+          },
+          "refiner_positive_aesthetic_score": {
+            "name": "refiner_positive_aesthetic_score",
+            "label": "",
+            "description": ""
+          },
+          "refiner_negative_aesthetic_score": {
+            "name": "refiner_negative_aesthetic_score",
+            "label": "",
+            "description": ""
+          },
+          "refiner_start": {
+            "name": "refiner_start",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 1300,
+        "y": 400
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000008",
+        "version": "1.2.2",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "save_image",
+        "inputs": {
+          "board": {
+            "name": "board",
+            "label": "",
+            "description": ""
+          },
+          "metadata": {
+            "name": "metadata",
+            "label": "",
+            "description": ""
+          },
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": false,
+        "useCache": false
+      },
+      "position": {
+        "x": 800,
+        "y": -700
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": -300
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000003",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "latents"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": -150
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000004",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return_value",
+        "inputs": {
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "metadata"
+          },
+          "value": {
+            "name": "value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 1700,
+        "y": 0
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000005",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": "",
+            "value": []
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": -220
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000006",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": -70
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000007",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "workflow_return",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": 2400,
+        "y": -150
+      }
+    },
+    {
+      "id": "20000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "20000000-0000-4000-8000-000000000010",
+        "version": "1.1.0",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "collect",
+        "inputs": {
+          "item": {
+            "name": "item",
+            "label": "",
+            "description": ""
+          },
+          "collection": {
+            "name": "collection",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": 2050,
+        "y": 80
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010clip-20000000-0000-4000-8000-000000000009clip",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "clip",
+      "targetHandle": "clip"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010t5_encoder-20000000-0000-4000-8000-000000000009t5_encoder",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "t5_encoder",
+      "targetHandle": "t5_encoder"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010max_seq_len-20000000-0000-4000-8000-000000000009t5_max_seq_len",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "max_seq_len",
+      "targetHandle": "t5_max_seq_len"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010clip-20000000-0000-4000-8000-00000000000aclip",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "clip",
+      "targetHandle": "clip"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010t5_encoder-20000000-0000-4000-8000-00000000000at5_encoder",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "t5_encoder",
+      "targetHandle": "t5_encoder"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010max_seq_len-20000000-0000-4000-8000-00000000000at5_max_seq_len",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "max_seq_len",
+      "targetHandle": "t5_max_seq_len"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000001value-20000000-0000-4000-8000-000000000009prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000009",
+      "sourceHandle": "value",
+      "targetHandle": "prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-00000000000aprompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "value",
+      "targetHandle": "prompt"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000009conditioning-20000000-0000-4000-8000-00000000000bpositive_text_conditioning",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000009",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "conditioning",
+      "targetHandle": "positive_text_conditioning"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000aconditioning-20000000-0000-4000-8000-00000000000bnegative_text_conditioning",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000a",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "conditioning",
+      "targetHandle": "negative_text_conditioning"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000006value-20000000-0000-4000-8000-00000000000bnum_steps",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "num_steps"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000007value-20000000-0000-4000-8000-00000000000bguidance",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000007",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "guidance"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000005value-20000000-0000-4000-8000-00000000000bseed",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "seed"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010transformer-20000000-0000-4000-8000-00000000000btransformer",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "transformer",
+      "targetHandle": "transformer"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000003value-20000000-0000-4000-8000-00000000000bwidth",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000003",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000004value-20000000-0000-4000-8000-00000000000bheight",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000004",
+      "target": "20000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000blatents-20000000-0000-4000-8000-00000000000clatents",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000b",
+      "target": "20000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "latents",
+      "targetHandle": "latents"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000010vae-20000000-0000-4000-8000-00000000000cvae",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "vae",
+      "targetHandle": "vae"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000001value-20000000-0000-4000-8000-000000000001positive_prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "positive_prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-000000000001negative_prompt",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "negative_prompt"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000005value-20000000-0000-4000-8000-000000000001seed",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "seed"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000006value-20000000-0000-4000-8000-000000000001steps",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "steps"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000007value-20000000-0000-4000-8000-000000000001cfg_scale",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000007",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "cfg_scale"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000003value-20000000-0000-4000-8000-000000000001width",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000003",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "width"
+    },
+    {
+      "id": "reactflow__edge-f0000000-0000-4000-8000-000000000004value-20000000-0000-4000-8000-000000000001height",
+      "type": "default",
+      "source": "f0000000-0000-4000-8000-000000000004",
+      "target": "20000000-0000-4000-8000-000000000001",
+      "sourceHandle": "value",
+      "targetHandle": "height"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000cimage-20000000-0000-4000-8000-000000000008image",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000c",
+      "target": "20000000-0000-4000-8000-000000000008",
+      "sourceHandle": "image",
+      "targetHandle": "image"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000001metadata-20000000-0000-4000-8000-000000000008metadata",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000008",
+      "sourceHandle": "metadata",
+      "targetHandle": "metadata"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000008image-20000000-0000-4000-8000-000000000002value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000008",
+      "target": "20000000-0000-4000-8000-000000000002",
+      "sourceHandle": "image",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-00000000000blatents-20000000-0000-4000-8000-000000000003value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-00000000000b",
+      "target": "20000000-0000-4000-8000-000000000003",
+      "sourceHandle": "latents",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000001metadata-20000000-0000-4000-8000-000000000004value",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000001",
+      "target": "20000000-0000-4000-8000-000000000004",
+      "sourceHandle": "metadata",
+      "targetHandle": "value"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000002value-20000000-0000-4000-8000-000000000005item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000002",
+      "target": "20000000-0000-4000-8000-000000000005",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000005collection-20000000-0000-4000-8000-000000000006collection",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000005",
+      "target": "20000000-0000-4000-8000-000000000006",
+      "sourceHandle": "collection",
+      "targetHandle": "collection"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000003value-20000000-0000-4000-8000-000000000006item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000003",
+      "target": "20000000-0000-4000-8000-000000000006",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000006collection-20000000-0000-4000-8000-000000000010collection",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000006",
+      "target": "20000000-0000-4000-8000-000000000010",
+      "sourceHandle": "collection",
+      "targetHandle": "collection"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000004value-20000000-0000-4000-8000-000000000010item",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000004",
+      "target": "20000000-0000-4000-8000-000000000010",
+      "sourceHandle": "value",
+      "targetHandle": "item"
+    },
+    {
+      "id": "reactflow__edge-20000000-0000-4000-8000-000000000010collection-20000000-0000-4000-8000-000000000007values",
+      "type": "default",
+      "source": "20000000-0000-4000-8000-000000000010",
+      "target": "20000000-0000-4000-8000-000000000007",
+      "sourceHandle": "collection",
+      "targetHandle": "values"
+    }
+  ]
+}

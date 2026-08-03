@@ -1,0 +1,1357 @@
+{
+  "name": "MAIN - Detail two parts of an Image",
+  "author": "Pfannkuchensack",
+  "description": "Parent workflow: improve two regions of an image one after the other, e.g. face then hands, each with its own model type and settings.",
+  "version": "1.0.0",
+  "contact": "",
+  "tags": "main, parent, detail, hyperdetailer, callable",
+  "notes": "Pfannkuchensacks Workflow Package\n\nTwo detail passes in sequence. Stage 2 works on the OUTPUT of stage 1, so the\nimprovements accumulate instead of overwriting each other.\n\nDefaults are Face then hands, but \"Body Part\" is just a Grounding DINO text\nprompt - eyes, teeth, hair, jewellery, anything the detector can name.\n\nWhy almost everything exists twice: the two stages may use different model\ntypes, and the regions differ anyway. Hands usually need a lower detection\nthreshold (they are harder to find than faces) and a lower Denoising Start (more\nchange, because hands are what models get wrong). A single shared value would be\nwrong for one of the two.\n\nShared on purpose: the input image, the negative prompt, the seed and Detail\nSize. Those describe the picture or the process, not the region.\n\nIf stage 1 finds nothing, the run fails at the crop before stage 2 ever starts -\nlower that stage's Detection Threshold to ~0.2 and retry.\n\nSteps and CFG must match the model each stage points at: SDXL ~30 steps at CFG\n5-8, Krea-2-Turbo 8 steps at CFG 1.0, FLUX ~25 steps at guidance ~3.5.",
+  "exposedFields": [
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000017",
+      "fieldName": "workflow_id"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000027",
+      "fieldName": "workflow_id"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000001",
+      "fieldName": "image"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000004",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000002",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000011",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000012",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000013",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000014",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000015",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000016",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000021",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000022",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000023",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000024",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000025",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b1000000-0000-4000-8000-000000000026",
+      "fieldName": "value"
+    }
+  ],
+  "meta": {
+    "category": "user",
+    "version": "3.0.0"
+  },
+  "form": {
+    "elements": {
+      "heading-0": {
+        "id": "heading-0",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Sub workflows"
+        }
+      },
+      "nf-2": {
+        "id": "nf-2",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000017",
+            "fieldName": "workflow_id"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-3": {
+        "id": "nf-3",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000027",
+            "fieldName": "workflow_id"
+          },
+          "showDescription": false
+        }
+      },
+      "container-1": {
+        "id": "container-1",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-2",
+            "nf-3"
+          ]
+        }
+      },
+      "heading-4": {
+        "id": "heading-4",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Input (shared)"
+        }
+      },
+      "nf-6": {
+        "id": "nf-6",
+        "parentId": "container-5",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000001",
+            "fieldName": "image"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-7": {
+        "id": "nf-7",
+        "parentId": "container-5",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000004",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-5": {
+        "id": "container-5",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-6",
+            "nf-7"
+          ]
+        }
+      },
+      "nf-9": {
+        "id": "nf-9",
+        "parentId": "container-8",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000002",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-8": {
+        "id": "container-8",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-9"
+          ]
+        }
+      },
+      "heading-10": {
+        "id": "heading-10",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Stage 1"
+        }
+      },
+      "nf-12": {
+        "id": "nf-12",
+        "parentId": "container-11",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000011",
+            "fieldName": "value"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-13": {
+        "id": "nf-13",
+        "parentId": "container-11",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000012",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-11": {
+        "id": "container-11",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-12",
+            "nf-13"
+          ]
+        }
+      },
+      "nf-15": {
+        "id": "nf-15",
+        "parentId": "container-14",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000013",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-14": {
+        "id": "container-14",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-15"
+          ]
+        }
+      },
+      "nf-17": {
+        "id": "nf-17",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000014",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-18": {
+        "id": "nf-18",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000015",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-19": {
+        "id": "nf-19",
+        "parentId": "container-16",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000016",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-16": {
+        "id": "container-16",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-17",
+            "nf-18",
+            "nf-19"
+          ]
+        }
+      },
+      "heading-20": {
+        "id": "heading-20",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Stage 2 (runs on stage 1 output)"
+        }
+      },
+      "nf-22": {
+        "id": "nf-22",
+        "parentId": "container-21",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000021",
+            "fieldName": "value"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-23": {
+        "id": "nf-23",
+        "parentId": "container-21",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000022",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-21": {
+        "id": "container-21",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-22",
+            "nf-23"
+          ]
+        }
+      },
+      "nf-25": {
+        "id": "nf-25",
+        "parentId": "container-24",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000023",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-24": {
+        "id": "container-24",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-25"
+          ]
+        }
+      },
+      "nf-27": {
+        "id": "nf-27",
+        "parentId": "container-26",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000024",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-28": {
+        "id": "nf-28",
+        "parentId": "container-26",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000025",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-29": {
+        "id": "nf-29",
+        "parentId": "container-26",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b1000000-0000-4000-8000-000000000026",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-26": {
+        "id": "container-26",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-27",
+            "nf-28",
+            "nf-29"
+          ]
+        }
+      },
+      "text-30": {
+        "id": "text-30",
+        "parentId": "container-root",
+        "type": "text",
+        "data": {
+          "content": "Per-stage values because the two stages may use different model types, and hands need different settings than faces. SDXL: ~30 steps / CFG 5-8. Krea-2-Turbo: 8 / 1.0. FLUX: ~25 / guidance ~3.5."
+        }
+      },
+      "container-root": {
+        "id": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "column",
+          "children": [
+            "heading-0",
+            "container-1",
+            "heading-4",
+            "container-5",
+            "container-8",
+            "heading-10",
+            "container-11",
+            "container-14",
+            "container-16",
+            "heading-20",
+            "container-21",
+            "container-24",
+            "container-26",
+            "text-30"
+          ]
+        }
+      }
+    },
+    "rootElementId": "container-root"
+  },
+  "nodes": [
+    {
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000001",
+        "version": "1.0.2",
+        "nodePack": "invokeai",
+        "label": "Input Image",
+        "notes": "",
+        "type": "image",
+        "inputs": {
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -900
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000002",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Negative Prompt (shared)",
+            "description": "",
+            "value": "blurry"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -760
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000003",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "rand_int",
+        "inputs": {
+          "low": {
+            "name": "low",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "high": {
+            "name": "high",
+            "label": "",
+            "description": "",
+            "value": 2147483647
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -2150,
+        "y": -620
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000004",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detail Size (shared)",
+            "description": "Working resolution per region (area = this squared).",
+            "value": 1024
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -530
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000011",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000011",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - Body Part",
+            "description": "",
+            "value": "Face"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -380
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000012",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000012",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - Detection Threshold",
+            "description": "",
+            "value": 0.3
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -290
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000013",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000013",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - Positive Prompt",
+            "description": "Describe the REGION, not the whole picture.",
+            "value": "a detailed face, sharp focus, skin texture"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -200
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000014",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000014",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - Steps",
+            "description": "",
+            "value": 30
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -60
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000015",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000015",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - CFG / Guidance",
+            "description": "",
+            "value": 6
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 30
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000016",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000016",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 1 - Denoising Start",
+            "description": "Lower = more change. 0.4 keeps the identity.",
+            "value": 0.4
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 120
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000021",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000021",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - Body Part",
+            "description": "",
+            "value": "hands"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 270
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000022",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000022",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - Detection Threshold",
+            "description": "Hands are harder to detect than faces.",
+            "value": 0.25
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 360
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000023",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000023",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - Positive Prompt",
+            "description": "Describe the REGION, not the whole picture.",
+            "value": "detailed hands, correct fingers, sharp focus"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 450
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000024",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000024",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - Steps",
+            "description": "",
+            "value": 30
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 590
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000025",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000025",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - CFG / Guidance",
+            "description": "",
+            "value": 6
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 680
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000026",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000026",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Stage 2 - Denoising Start",
+            "description": "Hands usually need more change than faces.",
+            "value": 0.5
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": 770
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000017",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000017",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Stage 1 - Detail",
+        "notes": "",
+        "type": "call_saved_workflow",
+        "inputs": {
+          "workflow_id": {
+            "name": "workflow_id",
+            "label": "",
+            "description": "",
+            "value": "1bf02664-715b-42c5-8d98-c7b39d1fe16f"
+          },
+          "workflow_inputs": {
+            "name": "workflow_inputs",
+            "label": "",
+            "description": "",
+            "value": {}
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -1600,
+        "y": -400
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000027",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000027",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Stage 2 - Detail",
+        "notes": "",
+        "type": "call_saved_workflow",
+        "inputs": {
+          "workflow_id": {
+            "name": "workflow_id",
+            "label": "",
+            "description": "",
+            "value": "1bf02664-715b-42c5-8d98-c7b39d1fe16f"
+          },
+          "workflow_inputs": {
+            "name": "workflow_inputs",
+            "label": "",
+            "description": "",
+            "value": {}
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -700,
+        "y": -400
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000018",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000018",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Stage 1 image",
+        "notes": "",
+        "type": "workflow_return_get",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          },
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -1150,
+        "y": -400
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000028",
+      "type": "invocation",
+      "data": {
+        "id": "b1000000-0000-4000-8000-000000000028",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Final image",
+        "notes": "",
+        "type": "workflow_return_get",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          },
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -250,
+        "y": -400
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000001image-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000001",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "image",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000011value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000011",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000012value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000012",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000013value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000013",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000014value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000014",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000015value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000015",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000016value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000016",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000002value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000002",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000003value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000003",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000004value-b1000000-0000-4000-8000-000000000017saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000004",
+      "target": "b1000000-0000-4000-8000-000000000017",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000017values-b1000000-0000-4000-8000-000000000018values",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000017",
+      "target": "b1000000-0000-4000-8000-000000000018",
+      "sourceHandle": "values",
+      "targetHandle": "values"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000018value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000018",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000021value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000021",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000022value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000022",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000023value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000023",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000024value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000024",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000025value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000025",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000026value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000026",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000002value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000002",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000003value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000003",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000004value-b1000000-0000-4000-8000-000000000027saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000004",
+      "target": "b1000000-0000-4000-8000-000000000027",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value"
+    },
+    {
+      "id": "reactflow__edge-b1000000-0000-4000-8000-000000000027values-b1000000-0000-4000-8000-000000000028values",
+      "type": "default",
+      "source": "b1000000-0000-4000-8000-000000000027",
+      "target": "b1000000-0000-4000-8000-000000000028",
+      "sourceHandle": "values",
+      "targetHandle": "values"
+    }
+  ]
+}

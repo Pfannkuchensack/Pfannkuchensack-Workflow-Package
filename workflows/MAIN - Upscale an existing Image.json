@@ -1,0 +1,985 @@
+{
+  "name": "MAIN - Upscale an existing Image",
+  "author": "Pfannkuchensack",
+  "description": "Parent workflow: feed in an image + prompt, upscale and refine it with any model type. Target resolution is derived from the image.",
+  "version": "1.0.0",
+  "contact": "",
+  "tags": "main, parent, upscale, img2img, callable",
+  "notes": "Pfannkuchensacks Workflow Package\n\nSame idea as the 2-pass main workflow, but without the text-to-image step: you\nsupply the image yourself.\n\nPick one \"UPSCALE REFINE - <model>\" sub workflow, drop in an image, write a\nprompt describing it, hit Invoke.\n\nThe target resolution is taken FROM THE IMAGE: image size x Scale, then rounded\nDOWN to the nearest multiple of 16. The rounding matters - several denoise nodes\ndeclare width/height as multiple_of=16 and would reject e.g. a 1000x667 source\nscaled to 2000x1334. That is what the six Integer Math nodes do:\n\n    target = floor(image_size * Scale / 16) * 16\n\nThe sub workflow resizes the incoming image to exactly that size before\nencoding, so the encoded latents and the denoise resolution always agree.\n\nDenoising Start controls how much is changed: 0.6 keeps the composition and\nsharpens detail, lower values reinterpret more.\n\nThe model is selected INSIDE the sub workflow and appears here as an extra field\non the call node once a workflow is picked.",
+  "exposedFields": [
+    {
+      "nodeId": "d0000000-0000-4000-8000-00000000000f",
+      "fieldName": "workflow_id"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000001",
+      "fieldName": "image"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000004",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000002",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000003",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000006",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000007",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "d0000000-0000-4000-8000-000000000008",
+      "fieldName": "value"
+    }
+  ],
+  "meta": {
+    "category": "user",
+    "version": "3.0.0"
+  },
+  "form": {
+    "elements": {
+      "heading-0": {
+        "id": "heading-0",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Sub workflow"
+        }
+      },
+      "nf-2": {
+        "id": "nf-2",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-00000000000f",
+            "fieldName": "workflow_id"
+          },
+          "showDescription": false
+        }
+      },
+      "container-1": {
+        "id": "container-1",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-2"
+          ]
+        }
+      },
+      "heading-3": {
+        "id": "heading-3",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Input"
+        }
+      },
+      "nf-5": {
+        "id": "nf-5",
+        "parentId": "container-4",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000001",
+            "fieldName": "image"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-6": {
+        "id": "nf-6",
+        "parentId": "container-4",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000004",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-4": {
+        "id": "container-4",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-5",
+            "nf-6"
+          ]
+        }
+      },
+      "nf-8": {
+        "id": "nf-8",
+        "parentId": "container-7",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000002",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-7": {
+        "id": "container-7",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-8"
+          ]
+        }
+      },
+      "nf-10": {
+        "id": "nf-10",
+        "parentId": "container-9",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000003",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-9": {
+        "id": "container-9",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-10"
+          ]
+        }
+      },
+      "heading-11": {
+        "id": "heading-11",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Refine"
+        }
+      },
+      "nf-13": {
+        "id": "nf-13",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000006",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-14": {
+        "id": "nf-14",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000007",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-15": {
+        "id": "nf-15",
+        "parentId": "container-12",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "d0000000-0000-4000-8000-000000000008",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-12": {
+        "id": "container-12",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-13",
+            "nf-14",
+            "nf-15"
+          ]
+        }
+      },
+      "text-16": {
+        "id": "text-16",
+        "parentId": "container-root",
+        "type": "text",
+        "data": {
+          "content": "Match Steps/CFG to the model you picked. Krea-2-Turbo: 8 steps / CFG 1.0. SDXL: ~30 steps / CFG 5-8. FLUX: ~25 steps / guidance ~3.5. Z-Image-Turbo: ~8 steps / guidance 1.0."
+        }
+      },
+      "container-root": {
+        "id": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "column",
+          "children": [
+            "heading-0",
+            "container-1",
+            "heading-3",
+            "container-4",
+            "container-7",
+            "container-9",
+            "heading-11",
+            "container-12",
+            "text-16"
+          ]
+        }
+      }
+    },
+    "rootElementId": "container-root"
+  },
+  "nodes": [
+    {
+      "id": "d0000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000001",
+        "version": "1.0.2",
+        "nodePack": "invokeai",
+        "label": "Input Image",
+        "notes": "",
+        "type": "image",
+        "inputs": {
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -900
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000002",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Positive Prompt",
+            "description": "",
+            "value": "a wide cinematic mountain landscape at golden hour, dramatic light"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -700
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000003",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Negative Prompt",
+            "description": "",
+            "value": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -560
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000004",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Scale",
+            "description": "Target = image size x this, rounded down to a multiple of 16.",
+            "value": 2
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -430
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000005",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "rand_int",
+        "inputs": {
+          "low": {
+            "name": "low",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "high": {
+            "name": "high",
+            "label": "",
+            "description": "",
+            "value": 2147483647
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -2150,
+        "y": -340
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000006",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Steps",
+            "description": "",
+            "value": 8
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -250
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000007",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "CFG / Guidance",
+            "description": "",
+            "value": 1
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -160
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000008",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Denoising Start",
+            "description": "Lower = more change. 0.6 keeps the composition.",
+            "value": 0.6
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -2150,
+        "y": -70
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000009",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "x Scale",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MUL"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -900
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000a",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000a",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "/ 16",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "DIV"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 16
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1400,
+        "y": -900
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000b",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000b",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "x 16",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MUL"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 16
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1100,
+        "y": -900
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000c",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000c",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "x Scale",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MUL"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -740
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000d",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000d",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "/ 16",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "DIV"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 16
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1400,
+        "y": -740
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000e",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000e",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "x 16",
+        "notes": "",
+        "type": "integer_math",
+        "inputs": {
+          "operation": {
+            "name": "operation",
+            "label": "",
+            "description": "",
+            "value": "MUL"
+          },
+          "a": {
+            "name": "a",
+            "label": "",
+            "description": ""
+          },
+          "b": {
+            "name": "b",
+            "label": "",
+            "description": "",
+            "value": 16
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1100,
+        "y": -740
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-00000000000f",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-00000000000f",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Upscale + Refine",
+        "notes": "",
+        "type": "call_saved_workflow",
+        "inputs": {
+          "workflow_id": {
+            "name": "workflow_id",
+            "label": "",
+            "description": "",
+            "value": "c4627855-7350-4661-a76c-a4cd70f5652e"
+          },
+          "workflow_inputs": {
+            "name": "workflow_inputs",
+            "label": "",
+            "description": "",
+            "value": {}
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -650,
+        "y": -400
+      }
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000010",
+      "type": "invocation",
+      "data": {
+        "id": "d0000000-0000-4000-8000-000000000010",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Final image",
+        "notes": "",
+        "type": "workflow_return_get",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          },
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -200,
+        "y": -400
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000001width-d0000000-0000-4000-8000-000000000009a",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000001",
+      "target": "d0000000-0000-4000-8000-000000000009",
+      "sourceHandle": "width",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000004value-d0000000-0000-4000-8000-000000000009b",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000004",
+      "target": "d0000000-0000-4000-8000-000000000009",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000009value-d0000000-0000-4000-8000-00000000000aa",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000009",
+      "target": "d0000000-0000-4000-8000-00000000000a",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000avalue-d0000000-0000-4000-8000-00000000000ba",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000a",
+      "target": "d0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000001height-d0000000-0000-4000-8000-00000000000ca",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000001",
+      "target": "d0000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "height",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000004value-d0000000-0000-4000-8000-00000000000cb",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000004",
+      "target": "d0000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "value",
+      "targetHandle": "b"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000cvalue-d0000000-0000-4000-8000-00000000000da",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000c",
+      "target": "d0000000-0000-4000-8000-00000000000d",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000dvalue-d0000000-0000-4000-8000-00000000000ea",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000d",
+      "target": "d0000000-0000-4000-8000-00000000000e",
+      "sourceHandle": "value",
+      "targetHandle": "a"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000002value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000002",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000003value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000003",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000bvalue-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000003::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000b",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000evalue-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000004::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000e",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000005value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000005",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000006value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000006",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000007value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000007",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000008value-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000008",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-000000000001image-d0000000-0000-4000-8000-00000000000fsaved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-000000000001",
+      "target": "d0000000-0000-4000-8000-00000000000f",
+      "sourceHandle": "image",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image"
+    },
+    {
+      "id": "reactflow__edge-d0000000-0000-4000-8000-00000000000fvalues-d0000000-0000-4000-8000-000000000010values",
+      "type": "default",
+      "source": "d0000000-0000-4000-8000-00000000000f",
+      "target": "d0000000-0000-4000-8000-000000000010",
+      "sourceHandle": "values",
+      "targetHandle": "values"
+    }
+  ]
+}

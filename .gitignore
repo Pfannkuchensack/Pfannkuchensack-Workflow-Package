@@ -1,0 +1,6 @@
+# Written by InvokeAI into the installed pack directory to track which workflows
+# this pack imported, so uninstall removes only those.
+.invokeai_pack_manifest.json
+
+__pycache__/
+*.py[cod]

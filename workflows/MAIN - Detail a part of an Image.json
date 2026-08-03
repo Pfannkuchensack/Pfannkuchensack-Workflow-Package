@@ -1,0 +1,800 @@
+{
+  "name": "MAIN - Detail a part of an Image",
+  "author": "Pfannkuchensack",
+  "description": "Parent workflow: drop in an image, name a body part, and re-render just that region at higher effective resolution with any model type.",
+  "version": "1.0.0",
+  "contact": "",
+  "tags": "main, parent, detail, hyperdetailer, callable",
+  "notes": "Pfannkuchensacks Workflow Package\n\nDrop in an image, write what should be improved, hit Invoke.\n\n\"Body Part\" is a Grounding DINO text prompt - Face, hands, eyes, hair, teeth,\nears, feet - so anything the detector can name works, not just body parts.\nSegment Anything turns the detection into a mask, only that region is\nre-rendered, and the result is pasted back into the untouched original.\n\nPick which model does the work with the \"DETAIL - <model>\" picker. The model\nitself is selected INSIDE that sub workflow and shows up here as an extra field\non the call node once a workflow is picked.\n\nSettings worth knowing:\n\n  Denoising Start   How much of the region is reinterpreted. 0.4 adds detail\n                    while keeping the identity; below ~0.3 the face starts to\n                    become a different person.\n  Detection Thresh  Lower finds more (and more dubious) matches. If nothing is\n                    found the run fails at the crop, so drop this to ~0.2 for\n                    hard cases.\n  Detail Size       The region is scaled up so its AREA is roughly this squared\n                    before denoising - that is where the added detail comes\n                    from. 1024 suits every model in this pack.\n\nSteps and CFG must match the model you picked: SDXL ~30 steps at CFG 5-8,\nKrea-2-Turbo 8 steps at CFG 1.0, FLUX ~25 steps at guidance ~3.5.\n\nTo improve more than one thing, chain a second call: add another Call Saved\nWorkflow node, point it at a DETAIL workflow, and feed this one's output image\ninto its image input.",
+  "exposedFields": [
+    {
+      "nodeId": "b0000000-0000-4000-8000-00000000000b",
+      "fieldName": "workflow_id"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000001",
+      "fieldName": "image"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000002",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000003",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000004",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000005",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000007",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000008",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-000000000009",
+      "fieldName": "value"
+    },
+    {
+      "nodeId": "b0000000-0000-4000-8000-00000000000a",
+      "fieldName": "value"
+    }
+  ],
+  "meta": {
+    "category": "user",
+    "version": "3.0.0"
+  },
+  "form": {
+    "elements": {
+      "heading-0": {
+        "id": "heading-0",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Sub workflow"
+        }
+      },
+      "nf-2": {
+        "id": "nf-2",
+        "parentId": "container-1",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-00000000000b",
+            "fieldName": "workflow_id"
+          },
+          "showDescription": false
+        }
+      },
+      "container-1": {
+        "id": "container-1",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-2"
+          ]
+        }
+      },
+      "heading-3": {
+        "id": "heading-3",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "What to improve"
+        }
+      },
+      "nf-5": {
+        "id": "nf-5",
+        "parentId": "container-4",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000001",
+            "fieldName": "image"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-6": {
+        "id": "nf-6",
+        "parentId": "container-4",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000002",
+            "fieldName": "value"
+          },
+          "showDescription": false
+        }
+      },
+      "nf-7": {
+        "id": "nf-7",
+        "parentId": "container-4",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000003",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-4": {
+        "id": "container-4",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-5",
+            "nf-6",
+            "nf-7"
+          ]
+        }
+      },
+      "nf-9": {
+        "id": "nf-9",
+        "parentId": "container-8",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000004",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-8": {
+        "id": "container-8",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-9"
+          ]
+        }
+      },
+      "nf-11": {
+        "id": "nf-11",
+        "parentId": "container-10",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000005",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "string-field-config",
+            "component": "textarea"
+          }
+        }
+      },
+      "container-10": {
+        "id": "container-10",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-11"
+          ]
+        }
+      },
+      "heading-12": {
+        "id": "heading-12",
+        "parentId": "container-root",
+        "type": "heading",
+        "data": {
+          "content": "Generation"
+        }
+      },
+      "nf-14": {
+        "id": "nf-14",
+        "parentId": "container-13",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000007",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-15": {
+        "id": "nf-15",
+        "parentId": "container-13",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000008",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-16": {
+        "id": "nf-16",
+        "parentId": "container-13",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-000000000009",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "float-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "nf-17": {
+        "id": "nf-17",
+        "parentId": "container-13",
+        "type": "node-field",
+        "data": {
+          "fieldIdentifier": {
+            "nodeId": "b0000000-0000-4000-8000-00000000000a",
+            "fieldName": "value"
+          },
+          "showDescription": false,
+          "settings": {
+            "type": "integer-field-config",
+            "component": "number-input"
+          }
+        }
+      },
+      "container-13": {
+        "id": "container-13",
+        "parentId": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "row",
+          "children": [
+            "nf-14",
+            "nf-15",
+            "nf-16",
+            "nf-17"
+          ]
+        }
+      },
+      "text-18": {
+        "id": "text-18",
+        "parentId": "container-root",
+        "type": "text",
+        "data": {
+          "content": "Steps/CFG must match the picked model. SDXL: ~30 / 5-8. Krea-2-Turbo: 8 / 1.0. FLUX: ~25 / guidance ~3.5. Z-Image-Turbo: ~8 / 1.0."
+        }
+      },
+      "container-root": {
+        "id": "container-root",
+        "type": "container",
+        "data": {
+          "layout": "column",
+          "children": [
+            "heading-0",
+            "container-1",
+            "heading-3",
+            "container-4",
+            "container-8",
+            "container-10",
+            "heading-12",
+            "container-13",
+            "text-18"
+          ]
+        }
+      }
+    },
+    "rootElementId": "container-root"
+  },
+  "nodes": [
+    {
+      "id": "b0000000-0000-4000-8000-000000000001",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "version": "1.0.2",
+        "nodePack": "invokeai",
+        "label": "Input Image",
+        "notes": "",
+        "type": "image",
+        "inputs": {
+          "image": {
+            "name": "image",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -900
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000002",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000002",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Body Part",
+            "description": "What to improve: Face, hands, eyes, hair, ...",
+            "value": "Face"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -760
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000003",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000003",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detection Threshold",
+            "description": "Lower finds more. ~0.2 for hard cases.",
+            "value": 0.3
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -670
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000004",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000004",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Positive Prompt",
+            "description": "Describe the REGION, not the whole picture.",
+            "value": "a detailed face, sharp focus, skin texture"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -580
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000005",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000005",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "string",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Negative Prompt",
+            "description": "",
+            "value": "blurry"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -440
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000006",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000006",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "rand_int",
+        "inputs": {
+          "low": {
+            "name": "low",
+            "label": "",
+            "description": "",
+            "value": 0
+          },
+          "high": {
+            "name": "high",
+            "label": "",
+            "description": "",
+            "value": 2147483647
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -1700,
+        "y": -300
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000007",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000007",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Steps",
+            "description": "",
+            "value": 30
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -210
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000008",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000008",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "CFG / Guidance",
+            "description": "",
+            "value": 6
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -120
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000009",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-000000000009",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "float",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Denoising Start",
+            "description": "Lower = more change. 0.4 keeps the identity.",
+            "value": 0.4
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": -30
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-00000000000a",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-00000000000a",
+        "version": "1.0.1",
+        "nodePack": "invokeai",
+        "label": "",
+        "notes": "",
+        "type": "integer",
+        "inputs": {
+          "value": {
+            "name": "value",
+            "label": "Detail Size",
+            "description": "Working resolution for the region (area = this squared).",
+            "value": 1024
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": true
+      },
+      "position": {
+        "x": -1700,
+        "y": 60
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-00000000000b",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-00000000000b",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Detail",
+        "notes": "",
+        "type": "call_saved_workflow",
+        "inputs": {
+          "workflow_id": {
+            "name": "workflow_id",
+            "label": "",
+            "description": "",
+            "value": "1bf02664-715b-42c5-8d98-c7b39d1fe16f"
+          },
+          "workflow_inputs": {
+            "name": "workflow_inputs",
+            "label": "",
+            "description": "",
+            "value": {}
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "label": "",
+            "description": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+            "label": "",
+            "description": ""
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -1150,
+        "y": -500
+      }
+    },
+    {
+      "id": "b0000000-0000-4000-8000-00000000000c",
+      "type": "invocation",
+      "data": {
+        "id": "b0000000-0000-4000-8000-00000000000c",
+        "version": "1.0.0",
+        "nodePack": "invokeai",
+        "label": "Final image",
+        "notes": "",
+        "type": "workflow_return_get",
+        "inputs": {
+          "values": {
+            "name": "values",
+            "label": "",
+            "description": ""
+          },
+          "key": {
+            "name": "key",
+            "label": "",
+            "description": "",
+            "value": "image"
+          }
+        },
+        "isOpen": true,
+        "isIntermediate": true,
+        "useCache": false
+      },
+      "position": {
+        "x": -700,
+        "y": -500
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000001image-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000001",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "image",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000002value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000002",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000003value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000003",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000004value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000004",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000005value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000005",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000006value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000006",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000007value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000007",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000008value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000008",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-000000000009value-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-000000000009",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-00000000000avalue-b0000000-0000-4000-8000-00000000000bsaved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-00000000000a",
+      "target": "b0000000-0000-4000-8000-00000000000b",
+      "sourceHandle": "value",
+      "targetHandle": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value"
+    },
+    {
+      "id": "reactflow__edge-b0000000-0000-4000-8000-00000000000bvalues-b0000000-0000-4000-8000-00000000000cvalues",
+      "type": "default",
+      "source": "b0000000-0000-4000-8000-00000000000b",
+      "target": "b0000000-0000-4000-8000-00000000000c",
+      "sourceHandle": "values",
+      "targetHandle": "values"
+    }
+  ]
+}
