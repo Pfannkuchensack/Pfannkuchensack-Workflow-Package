@@ -11,6 +11,19 @@ The pack ships one trivial node (**Pfannis Dummy Node**, a string passthrough). 
 because InvokeAI only accepts a node pack that contains an importable `__init__.py` — the
 workflows are the actual content.
 
+## One-time setup after installing
+
+**Open each `MAIN - …` workflow once and pick the sub workflow on every Call Saved Workflow
+node** (Pass 1, Pass 2, Detail, …), then save.
+
+Importing always assigns fresh workflow IDs — InvokeAI drops the `id` from the file and
+generates a new UUID per workflow — so the sub workflow a call node points at cannot be
+shipped in the file. Until you pick one, the call node has no workflow selected.
+
+What it does *not* cost you is the wiring: the field templates for the exposed inputs ship
+inside the MAIN files, so all connections into the call nodes survive the import and stay
+put when you pick the sub workflow. You only choose the workflow; you never rewire.
+
 ## What you get
 
 Four top-level workflows you run directly:

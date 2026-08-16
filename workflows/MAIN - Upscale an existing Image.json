@@ -742,56 +742,205 @@
             "description": "",
             "value": "c4627855-7350-4661-a76c-a4cd70f5652e"
           },
-          "workflow_inputs": {
-            "name": "workflow_inputs",
-            "label": "",
-            "description": "",
-            "value": {}
-          },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
-            "label": "",
-            "description": ""
+            "label": "Positive Prompt",
+            "description": "The string value",
+            "value": "a wide cinematic landscape, dramatic light"
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
-            "label": "",
-            "description": ""
+            "label": "Negative Prompt",
+            "description": "The string value",
+            "value": ""
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value",
-            "label": "",
-            "description": ""
+            "label": "Width",
+            "description": "The integer value",
+            "value": 1280
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value",
-            "label": "",
-            "description": ""
+            "label": "Height",
+            "description": "The integer value",
+            "value": 720
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
-            "label": "",
-            "description": ""
+            "label": "Seed",
+            "description": "The integer value",
+            "value": 0
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
-            "label": "",
-            "description": ""
+            "label": "Steps",
+            "description": "The integer value",
+            "value": 30
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
-            "label": "",
-            "description": ""
+            "label": "CFG / Guidance",
+            "description": "The float value",
+            "value": 5
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
-            "label": "",
-            "description": ""
+            "label": "Image",
+            "description": "The image to load"
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
-            "label": "",
-            "description": ""
+            "label": "Denoising Start",
+            "description": "Lower = more change. 0.5 is a good start.",
+            "value": 0.5
+          }
+        },
+        "dynamicInputTemplates": {
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "title": "Positive Prompt",
+            "required": false,
+            "description": "The string value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_component": "textarea",
+            "ui_order": 2,
+            "type": {
+              "name": "StringField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "title": "Negative Prompt",
+            "required": false,
+            "description": "The string value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_component": "textarea",
+            "ui_order": 3,
+            "type": {
+              "name": "StringField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000003::value",
+            "title": "Width",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 5,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000004::value",
+            "title": "Height",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 6,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "title": "Seed",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 7,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "title": "Steps",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 8,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "title": "CFG / Guidance",
+            "required": false,
+            "description": "The float value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 9,
+            "type": {
+              "name": "FloatField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "title": "Image",
+            "required": true,
+            "description": "The image to load",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 4,
+            "type": {
+              "name": "ImageField",
+              "cardinality": "SINGLE",
+              "batch": false
+            }
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "title": "Denoising Start",
+            "required": false,
+            "description": "Lower = more change. 0.5 is a good start.",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 10,
+            "type": {
+              "name": "FloatField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
           }
         },
         "isOpen": true,

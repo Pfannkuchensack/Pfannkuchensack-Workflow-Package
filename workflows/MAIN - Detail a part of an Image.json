@@ -608,61 +608,228 @@
             "description": "",
             "value": "1bf02664-715b-42c5-8d98-c7b39d1fe16f"
           },
-          "workflow_inputs": {
-            "name": "workflow_inputs",
-            "label": "",
-            "description": "",
-            "value": {}
-          },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
-            "label": "",
-            "description": ""
+            "label": "Image",
+            "description": "The image to load"
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
-            "label": "",
-            "description": ""
+            "label": "Detect (what to improve)",
+            "description": "Grounding DINO prompt, e.g. Face / hands / eyes.",
+            "value": "Face"
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
-            "label": "",
-            "description": ""
+            "label": "Detection Threshold",
+            "description": "The float value",
+            "value": 0.3
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
-            "label": "",
-            "description": ""
+            "label": "Positive Prompt",
+            "description": "The string value",
+            "value": "a detailed face, sharp focus"
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
-            "label": "",
-            "description": ""
+            "label": "Negative Prompt",
+            "description": "The string value",
+            "value": ""
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
-            "label": "",
-            "description": ""
+            "label": "Seed",
+            "description": "The integer value",
+            "value": 0
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
-            "label": "",
-            "description": ""
+            "label": "Steps",
+            "description": "The integer value",
+            "value": 30
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
-            "label": "",
-            "description": ""
+            "label": "CFG / Guidance",
+            "description": "The float value",
+            "value": 5
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
-            "label": "",
-            "description": ""
+            "label": "Denoising Start",
+            "description": "Lower = more change in the detailed region.",
+            "value": 0.4
           },
           "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value": {
             "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
-            "label": "",
-            "description": ""
+            "label": "Detail Size",
+            "description": "Working resolution for the cropped region (area = this squared).",
+            "value": 1024
+          }
+        },
+        "dynamicInputTemplates": {
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000008::image",
+            "title": "Image",
+            "required": true,
+            "description": "The image to load",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 2,
+            "type": {
+              "name": "ImageField",
+              "cardinality": "SINGLE",
+              "batch": false
+            }
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000020::value",
+            "title": "Detect (what to improve)",
+            "required": false,
+            "description": "Grounding DINO prompt, e.g. Face / hands / eyes.",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_component": "textarea",
+            "ui_order": 3,
+            "type": {
+              "name": "StringField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000022::value",
+            "title": "Detection Threshold",
+            "required": false,
+            "description": "The float value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 4,
+            "type": {
+              "name": "FloatField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000001::value",
+            "title": "Positive Prompt",
+            "required": false,
+            "description": "The string value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_component": "textarea",
+            "ui_order": 5,
+            "type": {
+              "name": "StringField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000002::value",
+            "title": "Negative Prompt",
+            "required": false,
+            "description": "The string value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_component": "textarea",
+            "ui_order": 6,
+            "type": {
+              "name": "StringField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": ""
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000005::value",
+            "title": "Seed",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 7,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000006::value",
+            "title": "Steps",
+            "required": false,
+            "description": "The integer value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 8,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000007::value",
+            "title": "CFG / Guidance",
+            "required": false,
+            "description": "The float value",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 9,
+            "type": {
+              "name": "FloatField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000009::value",
+            "title": "Denoising Start",
+            "required": false,
+            "description": "Lower = more change in the detailed region.",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 10,
+            "type": {
+              "name": "FloatField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
+          },
+          "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value": {
+            "name": "saved_workflow_input::f0000000-0000-4000-8000-000000000021::value",
+            "title": "Detail Size",
+            "required": false,
+            "description": "Working resolution for the cropped region (area = this squared).",
+            "fieldKind": "input",
+            "input": "any",
+            "ui_hidden": false,
+            "ui_order": 11,
+            "type": {
+              "name": "IntegerField",
+              "cardinality": "SINGLE",
+              "batch": false
+            },
+            "default": 0
           }
         },
         "isOpen": true,
