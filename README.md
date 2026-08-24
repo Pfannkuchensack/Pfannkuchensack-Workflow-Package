@@ -22,9 +22,14 @@ node** (Pass 1, Pass 2, Detail, …), then save.
 
 ![The two call nodes in MAIN - 2-Pass Upscale](docs/call-nodes.png)
 
-The `Workflow Id` field at the top of each call node is what you set. Everything below it —
-`Transformer`, the prompt, width, height, seed, steps — is already wired and stays wired.
-Note how Pass 2 carries two inputs Pass 1 does not: `Image` and `Denoising Start`.
+Picking the workflow in the `Workflow Id` field makes that sub workflow's model fields appear on
+the call node. Set all of them, not just `Transformer`: **VAE** and the **text encoder** are marked
+optional, but leaving them empty falls back to whatever the selected checkpoint happens to carry —
+and a checkpoint that ships neither will fail at run time rather than at connect time.
+
+What you never have to touch is the wiring. The connections into the call node — prompt, width,
+height, seed, steps, CFG — ship inside the MAIN file and survive both the import and a later change
+of sub workflow. Note how Pass 2 carries two inputs Pass 1 does not: `Image` and `Denoising Start`.
 
 Importing always assigns fresh workflow IDs — InvokeAI drops the `id` from the file and
 generates a new UUID per workflow — so the sub workflow a call node points at cannot be
