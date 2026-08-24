@@ -7,6 +7,10 @@ of them into your workflow library automatically.
 
 Node Manager → *Install Node Pack* → *Git Repository URL* → paste this repo's URL.
 
+All 25 workflows land in your library, tagged `node-pack:Pfannkuchensack-Workflow-Package`:
+
+![Workflow library after install](docs/library.png)
+
 The pack ships one trivial node (**Pfannis Dummy Node**, a string passthrough). It exists
 because InvokeAI only accepts a node pack that contains an importable `__init__.py` — the
 workflows are the actual content.
@@ -15,6 +19,12 @@ workflows are the actual content.
 
 **Open each `MAIN - …` workflow once and pick the sub workflow on every Call Saved Workflow
 node** (Pass 1, Pass 2, Detail, …), then save.
+
+![The two call nodes in MAIN - 2-Pass Upscale](docs/call-nodes.png)
+
+The `Workflow Id` field at the top of each call node is what you set. Everything below it —
+`Transformer`, the prompt, width, height, seed, steps — is already wired and stays wired.
+Note how Pass 2 carries two inputs Pass 1 does not: `Image` and `Denoising Start`.
 
 Importing always assigns fresh workflow IDs — InvokeAI drops the `id` from the file and
 generates a new UUID per workflow — so the sub workflow a call node points at cannot be
@@ -46,6 +56,11 @@ Four top-level workflows you run directly:
 
 Each sub workflow returns `image`, `latents` and `metadata`.
 
+![MAIN - 2-Pass Upscale in the node editor](docs/main-workflow.png)
+
+The MAINs stay small on purpose: they hold the exposed settings and two call nodes, while the
+model-specific work lives in the sub workflows.
+
 ## The point of the split
 
 Every sub workflow of the same role exposes **the same inputs under the same node ids**.
@@ -60,6 +75,8 @@ do not exist there — and switching back does **not** restore them. Keep Pass 1
 ## Settings that matter
 
 Steps and CFG are model-specific, which is why the MAINs expose them per pass:
+
+![Linear view of MAIN - 2-Pass Upscale](docs/linear-view.png)
 
 | Model | Steps | CFG / Guidance |
 |---|---|---|
